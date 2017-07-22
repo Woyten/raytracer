@@ -7,6 +7,7 @@ use image::Rgb;
 use prelude::*;
 use sphere::Sphere;
 use ray::Ray;
+use std::f64;
 
 mod prelude;
 mod ray;
@@ -20,11 +21,22 @@ struct Pixel {
 fn main() {
     let mut field = create_pixel_field(400, 400, (0.5, 0.5, 0.5));
 
-    let sphere = Sphere {
-        middle: Point3::new(1.0, 1.0, -1.0),
+    let mut scene = Vec::new();
+    scene.push(Sphere {
+        middle: Point3::new(-0.3, 1.0, -1.0),
         radius: 0.5,
         color: (0.0, 1.0, 0.0),
-    };
+    });
+    scene.push(Sphere {
+        middle: Point3::new(0.3, 1.0, -1.0),
+        radius: 0.5,
+        color: (1.0, 0.0, 0.0),
+    });
+    scene.push(Sphere {
+        middle: Point3::new(0.0, 0.5, -1.0),
+        radius: 0.5,
+        color: (0.0, 0.0, 1.0),
+    });
 
     let start = Point3::new(0.0, 0.0, 1.0);
     for pixel in &mut field {
@@ -33,8 +45,14 @@ fn main() {
             direction: Vector3::new(pixel.location.x, pixel.location.y, -1.0),
         };
 
-        if sphere.has_intersection(&ray) {
-            pixel.color = sphere.color;
+        let mut nearest = f64::MAX;
+        for sphere in &scene {
+            if let Some(distance) = sphere.get_intersection_distance(&ray) {
+                if distance < nearest {
+                    nearest = distance;
+                    pixel.color = sphere.color;
+                }
+            }
         }
     }
 
