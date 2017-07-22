@@ -20,7 +20,18 @@ impl Sphere {
             return None;
         }
 
-        let nearest = -p_half - discriminant.sqrt();
-        if nearest > 0.0 { Some(nearest) } else { None }
+        let alpha = -p_half - discriminant.sqrt();
+        if alpha > 0.0 { Some(alpha) } else { None }
+    }
+
+    pub fn get_reflected_ray(&self, ray: &Ray, alpha: f64) -> Ray {
+        let reflection_point = ray.start + alpha * ray.direction;
+        let normal = reflection_point - self.middle;
+
+        let reflected_direction = ray.direction - 2.0 * ray.direction.dot(&normal) * normal / normal.norm_squared();
+        Ray {
+            start: reflection_point,
+            direction: reflected_direction,
+        }
     }
 }

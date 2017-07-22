@@ -1,13 +1,13 @@
 extern crate image;
 extern crate nalgebra;
 
-use std::path::Path;
 use image::ImageBuffer;
 use image::Rgb;
 use prelude::*;
-use sphere::Sphere;
 use ray::Ray;
+use sphere::Sphere;
 use std::f64;
+use std::path::Path;
 
 mod prelude;
 mod ray;
@@ -19,23 +19,23 @@ struct Pixel {
 }
 
 fn main() {
-    let mut field = create_pixel_field(400, 400, (0.5, 0.5, 0.5));
+    let mut field = create_pixel_field(400, 400, Color::new(0.5, 0.5, 0.5));
 
     let mut scene = Vec::new();
     scene.push(Sphere {
-        middle: Point3::new(-0.3, 1.0, -1.0),
+        middle: Point3::new(-0.5, -0.5, -1.0),
         radius: 0.5,
-        color: (0.0, 1.0, 0.0),
+        color: Color::new(0.0, 1.0, 0.0),
     });
     scene.push(Sphere {
-        middle: Point3::new(0.3, 1.0, -1.0),
+        middle: Point3::new(0.5, -0.5, -1.0),
         radius: 0.5,
-        color: (1.0, 0.0, 0.0),
+        color: Color::new(1.0, 0.0, 0.0),
     });
     scene.push(Sphere {
-        middle: Point3::new(0.0, 0.5, -1.0),
+        middle: Point3::new(-0.5, 0.5, -1.0),
         radius: 0.5,
-        color: (0.0, 0.0, 1.0),
+        color: Color::new(0.0, 0.0, 1.0),
     });
 
     let start = Point3::new(0.0, 0.0, 1.0);
@@ -45,13 +45,13 @@ fn main() {
             direction: Vector3::new(pixel.location.x, pixel.location.y, -1.0),
         };
 
-        let mut nearest = f64::MAX;
-        for sphere in &scene {
-            if let Some(distance) = sphere.get_intersection_distance(&ray) {
-                if distance < nearest {
-                    nearest = distance;
-                    pixel.color = sphere.color;
-                }
+        let (alpha, intersected_sphere) = ray.trace(&scene);
+        if let Some(sphere) = intersected_sphere {
+            pixel.color = sphere.color;
+            let reflected_ray = sphere.get_reflected_ray(&ray, alpha);
+            let (_, intersected_sphere) = reflected_ray.trace(&scene);
+            if let Some(sphere) = intersected_sphere {
+                pixel.color = 0.6 * pixel.color + 0.4 * sphere.color;
             }
         }
     }
@@ -77,9 +77,9 @@ fn create_pixel_field(width: u32, height: u32, initial_color: Color) -> Vec<Pixe
 fn save_field(field: &Vec<Pixel>, width: u32, height: u32, file_name: &str) {
     let mut as_integers = Vec::with_capacity(3 as usize * width as usize * height as usize);
     for pixel in field {
-        as_integers.push((pixel.color.0 * 255.0) as u8);
-        as_integers.push((pixel.color.1 * 255.0) as u8);
-        as_integers.push((pixel.color.2 * 255.0) as u8);
+        as_integers.push((pixel.color.x * 255.0) as u8);
+        as_integers.push((pixel.color.y * 255.0) as u8);
+        as_integers.push((pixel.color.z * 255.0) as u8);
     }
 
     ImageBuffer::<Rgb<_>, _>::from_vec(width, height, as_integers)
