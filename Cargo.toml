@@ -5,3 +5,4 @@ authors = ["Woyten <woyten.tielesch@online.de>"]
 
 [dependencies]
 image = "*"
+nalgebra = "*"
