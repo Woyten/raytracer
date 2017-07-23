@@ -1,5 +1,6 @@
 use object::Object;
 use prelude::*;
+use ray;
 use ray::Ray;
 
 pub struct Sphere {
@@ -36,7 +37,7 @@ impl Object for Sphere {
 
         let reflected_ray = Ray {
             start: reflection_point,
-            direction: ray.direction - 2.0 * ray.direction.dot(&normal) * normal / normal.norm_squared(),
+            direction: ray::reflect(&ray.direction, &normal),
         };
 
         let reflected_color = reflected_ray.trace(scene, num_recursions - 1);

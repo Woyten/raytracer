@@ -29,3 +29,7 @@ impl Ray {
         if let Some(object) = nearest_object { Some((nearest, *object)) } else { None }
     }
 }
+
+pub fn reflect(incident_direction: &Vector3, normal: &Vector3) -> Vector3 {
+    incident_direction - 2.0 * incident_direction.dot(&normal) * normal / normal.norm_squared()
+}

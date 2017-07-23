@@ -1,8 +1,9 @@
 use prelude::*;
 use ray::Ray;
 
-pub mod sun;
+pub mod primitive;
 pub mod sphere;
+pub mod sun;
 
 pub trait Object {
     fn get_alpha(&self, ray: &Ray) -> Option<f64>;

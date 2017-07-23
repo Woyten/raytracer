@@ -4,6 +4,7 @@ extern crate nalgebra;
 use image::ImageBuffer;
 use image::Rgb;
 use object::Object;
+use object::primitive::Primitive;
 use object::sphere::Sphere;
 use object::sun::Sun;
 use prelude::*;
@@ -40,6 +41,13 @@ fn main() {
         color: Color::new(0.0, 0.0, 0.7),
         reflectivity: 0.3,
     };
+    let primitive = Primitive::new(
+        Point3::new(-1.0, -1.0, -0.5),
+        Point3::new(1.0, -1.0, -0.5),
+        Point3::new(0.0, -1.0, -1.0),
+        Color::new(0.2, 0.2, 0.2),
+        0.8,
+    );
     let light = Sun {
         direction: Vector3::new(1.0, 0.6, 1.0),
         color1: Color::new(0.0, 0.0, 0.0),
@@ -51,6 +59,7 @@ fn main() {
         &sphere1 as &Object,
         &sphere2 as &Object,
         &sphere3 as &Object,
+        &primitive as &Object,
         &light as &Object,
     ];
 
