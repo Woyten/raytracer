@@ -19,23 +19,26 @@ struct Pixel {
 }
 
 fn main() {
-    let mut field = create_pixel_field(400, 400, Color::new(0.5, 0.5, 0.5));
+    let mut field = create_pixel_field(400, 400, Color::new(0.0, 0.0, 0.0));
 
     let mut scene = Vec::new();
     scene.push(Sphere {
         middle: Point3::new(-0.5, -0.5, -1.0),
         radius: 0.5,
-        color: Color::new(0.0, 1.0, 0.0),
+        color: Color::new(0.0, 0.7, 0.0),
+        reflectivity: 0.3,
     });
     scene.push(Sphere {
         middle: Point3::new(0.5, -0.5, -1.0),
         radius: 0.5,
-        color: Color::new(1.0, 0.0, 0.0),
+        color: Color::new(0.7, 0.0, 0.0),
+        reflectivity: 0.3,
     });
     scene.push(Sphere {
         middle: Point3::new(-0.5, 0.5, -1.0),
         radius: 0.5,
-        color: Color::new(0.0, 0.0, 1.0),
+        color: Color::new(0.0, 0.0, 0.7),
+        reflectivity: 0.3,
     });
 
     let start = Point3::new(0.0, 0.0, 1.0);
@@ -45,15 +48,7 @@ fn main() {
             direction: Vector3::new(pixel.location.x, pixel.location.y, -1.0),
         };
 
-        let (alpha, intersected_sphere) = ray.trace(&scene);
-        if let Some(sphere) = intersected_sphere {
-            pixel.color = sphere.color;
-            let reflected_ray = sphere.get_reflected_ray(&ray, alpha);
-            let (_, intersected_sphere) = reflected_ray.trace(&scene);
-            if let Some(sphere) = intersected_sphere {
-                pixel.color = 0.6 * pixel.color + 0.4 * sphere.color;
-            }
-        }
+        pixel.color = ray.trace(&scene, 2);
     }
 
     save_field(&field, 400, 400, "out.png");
