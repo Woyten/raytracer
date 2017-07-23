@@ -1,3 +1,4 @@
+use object::Object;
 use prelude::*;
 use ray::Ray;
 
@@ -8,8 +9,8 @@ pub struct Sphere {
     pub reflectivity: f64,
 }
 
-impl Sphere {
-    pub fn get_alpha(&self, ray: &Ray) -> Option<f64> {
+impl Object for Sphere {
+    fn get_alpha(&self, ray: &Ray) -> Option<f64> {
         let ms = ray.start - self.middle;
         let d_sqr = ray.direction.norm_squared();
         let p_half = ms.dot(&ray.direction) / d_sqr;
@@ -25,7 +26,7 @@ impl Sphere {
         if alpha > 0.0 { Some(alpha) } else { None }
     }
 
-    pub fn get_color(&self, ray: &Ray, alpha: f64, scene: &Vec<Sphere>, num_recursions: usize) -> Color {
+    fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
         if num_recursions == 0 {
             return self.color;
         }

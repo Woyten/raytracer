@@ -1,6 +1,6 @@
-use f64;
+use object::Object;
 use prelude::*;
-use sphere::Sphere;
+use std::f64;
 
 pub struct Ray {
     pub start: Point3,
@@ -8,24 +8,24 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn trace<'a>(&self, scene: &'a Vec<Sphere>, num_recursions: usize) -> Color {
-        match self.find_nearest(&scene) {
-            Some((alpha, sphere)) => sphere.get_color(self, alpha, scene, num_recursions),
+    pub fn trace(&self, scene: &[&Object], num_recursions: usize) -> Color {
+        match self.find_nearest(scene) {
+            Some((alpha, object)) => object.get_color(self, alpha, scene, num_recursions),
             None => Color::new(0.0, 0.0, 0.0),
         }
     }
 
-    fn find_nearest<'a>(&self, scene: &'a Vec<Sphere>) -> Option<(f64, &'a Sphere)> {
-        let mut nearest = f64::MAX;
-        let mut nearest_sphere = None;
-        for sphere in scene {
-            if let Some(alpha) = sphere.get_alpha(&self) {
+    fn find_nearest<'a>(&self, scene: &'a [&Object]) -> Option<(f64, &'a Object)> {
+        let mut nearest = f64::INFINITY;
+        let mut nearest_object = None;
+        for object in scene {
+            if let Some(alpha) = object.get_alpha(self) {
                 if alpha < nearest {
                     nearest = alpha;
-                    nearest_sphere = Some(sphere);
+                    nearest_object = Some(object);
                 }
             }
         }
-        if let Some(sphere) = nearest_sphere { Some((nearest, sphere)) } else { None }
+        if let Some(object) = nearest_object { Some((nearest, *object)) } else { None }
     }
 }

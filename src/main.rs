@@ -3,15 +3,16 @@ extern crate nalgebra;
 
 use image::ImageBuffer;
 use image::Rgb;
+use object::Object;
+use object::sphere::Sphere;
+use object::sun::Sun;
 use prelude::*;
 use ray::Ray;
-use sphere::Sphere;
-use std::f64;
 use std::path::Path;
 
+mod object;
 mod prelude;
 mod ray;
-mod sphere;
 
 struct Pixel {
     location: Point2,
@@ -21,25 +22,37 @@ struct Pixel {
 fn main() {
     let mut field = create_pixel_field(400, 400, Color::new(0.0, 0.0, 0.0));
 
-    let mut scene = Vec::new();
-    scene.push(Sphere {
+    let sphere1 = Sphere {
         middle: Point3::new(-0.5, -0.5, -1.0),
         radius: 0.5,
         color: Color::new(0.0, 0.7, 0.0),
         reflectivity: 0.3,
-    });
-    scene.push(Sphere {
+    };
+    let sphere2 = Sphere {
         middle: Point3::new(0.5, -0.5, -1.0),
         radius: 0.5,
-        color: Color::new(0.7, 0.0, 0.0),
-        reflectivity: 0.3,
-    });
-    scene.push(Sphere {
+        color: Color::new(0.4, 0.0, 0.0),
+        reflectivity: 0.6,
+    };
+    let sphere3 = Sphere {
         middle: Point3::new(-0.5, 0.5, -1.0),
         radius: 0.5,
         color: Color::new(0.0, 0.0, 0.7),
         reflectivity: 0.3,
-    });
+    };
+    let light = Sun {
+        direction: Vector3::new(1.0, 0.6, 1.0),
+        color1: Color::new(0.0, 0.0, 0.0),
+        color2: Color::new(1.0, 1.0, 0.7),
+        threshold1: 0.96,
+        threshold2: 0.99,
+    };
+    let scene = [
+        &sphere1 as &Object,
+        &sphere2 as &Object,
+        &sphere3 as &Object,
+        &light as &Object,
+    ];
 
     let start = Point3::new(0.0, 0.0, 1.0);
     for pixel in &mut field {
