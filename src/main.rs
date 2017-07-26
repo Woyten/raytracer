@@ -4,6 +4,7 @@ extern crate nalgebra;
 use image::ImageBuffer;
 use image::Rgb;
 use object::Object;
+use object::plane::Plane;
 use object::primitive::Primitive;
 use object::sphere::Sphere;
 use object::sun::Sun;
@@ -41,13 +42,11 @@ fn main() {
         color: Color::new(0.0, 0.0, 0.7),
         reflectivity: 0.3,
     };
-    let primitive = Primitive::new(
-        Point3::new(-1.0, -1.0, -0.5),
-        Point3::new(1.0, -1.0, -0.5),
-        Point3::new(0.0, -1.0, -1.0),
-        Color::new(0.2, 0.2, 0.2),
-        0.8,
-    );
+    let primitive = Primitive::new(Point3::new(-1.0, 1.0, -0.5), Point3::new(1.0, 1.0, -0.5), Point3::new(0.0, 1.0, -1.0), Color::new(0.2, 0.2, 0.2), 0.8);
+    let checkerboard = Plane::from_triangle(Point3::new(-1.0, -1.0, -0.5), Point3::new(1.0, -1.0, -0.5), Point3::new(0.0, -1.0, -1.0), 0.2, |point| {
+        let color = if (point.x.abs() + 0.25).fract() < 0.5 { 1.0 } else { 0.0 };
+        color * 0.8 * Color::new(1.0, 1.0, 1.0)
+    });
     let light = Sun {
         direction: Vector3::new(1.0, 0.6, 1.0),
         color1: Color::new(0.0, 0.0, 0.0),
@@ -60,6 +59,7 @@ fn main() {
         &sphere2 as &Object,
         &sphere3 as &Object,
         &primitive as &Object,
+        &checkerboard as &Object,
         &light as &Object,
     ];
 
@@ -70,7 +70,7 @@ fn main() {
             direction: Vector3::new(pixel.location.x, pixel.location.y, -1.0),
         };
 
-        pixel.color = ray.trace(&scene, 2);
+        pixel.color = ray.trace(&scene, 10);
     }
 
     save_field(&field, 400, 400, "out.png");
