@@ -3,6 +3,7 @@ extern crate nalgebra;
 
 use image::ImageBuffer;
 use image::Rgb;
+use material::SimpleMaterial;
 use object::Object;
 use object::plane::Plane;
 use object::primitive::Primitive;
@@ -12,6 +13,7 @@ use prelude::*;
 use ray::Ray;
 use std::path::Path;
 
+mod material;
 mod object;
 mod prelude;
 mod ray;
@@ -24,31 +26,56 @@ struct Pixel {
 fn main() {
     let mut field = create_pixel_field(400, 400, Color::new(0.0, 0.0, 0.0));
 
+    let light_side = Vector3::new(1.0, 0.6, 1.0);
     let sphere1 = Sphere {
         middle: Point3::new(-0.5, -0.5, -1.0),
         radius: 0.5,
-        color: Color::new(0.0, 0.7, 0.0),
-        reflectivity: 0.3,
+        material: SimpleMaterial {
+            light_side,
+            color_fn: |_| Color::new(0.1, 0.5, 0.1),
+            reflectivity: 0.4,
+        },
     };
     let sphere2 = Sphere {
         middle: Point3::new(0.5, -0.5, -1.0),
         radius: 0.5,
-        color: Color::new(0.4, 0.0, 0.0),
-        reflectivity: 0.6,
+        material: SimpleMaterial {
+            light_side: Vector3::new(1.0, 0.6, 1.0),
+            color_fn: |_| Color::new(0.6, 0.2, 0.2),
+            reflectivity: 0.4,
+        },
     };
     let sphere3 = Sphere {
         middle: Point3::new(-0.5, 0.5, -1.0),
         radius: 0.5,
-        color: Color::new(0.0, 0.0, 0.7),
-        reflectivity: 0.3,
+        material: SimpleMaterial {
+            light_side,
+            color_fn: |_| Color::new(0.2, 0.2, 0.9),
+            reflectivity: 0.4,
+        },
     };
-    let primitive = Primitive::new(Point3::new(-1.0, 1.0, -0.5), Point3::new(1.0, 1.0, -0.5), Point3::new(0.0, 1.0, -1.0), Color::new(0.2, 0.2, 0.2), 0.8);
-    let checkerboard = Plane::from_triangle(Point3::new(-1.0, -1.0, -0.5), Point3::new(1.0, -1.0, -0.5), Point3::new(0.0, -1.0, -1.0), 0.2, |point| {
-        let color = if (point.x.abs() + 0.25).fract() < 0.5 { 1.0 } else { 0.0 };
-        color * 0.8 * Color::new(1.0, 1.0, 1.0)
-    });
+    let primitive = Primitive::new(
+        Point3::new(-1.0, 1.0, -0.5),
+        Point3::new(1.0, 1.0, -0.5),
+        Point3::new(0.0, 1.0, -1.0),
+        SimpleMaterial {
+            light_side,
+            color_fn: |_| Color::new(0.2, 0.2, 0.2),
+            reflectivity: 0.2,
+        },
+    );
+    let checkerboard = Plane::from_triangle(
+        Point3::new(-1.0, -1.0, -0.5),
+        Point3::new(1.0, -1.0, -0.5),
+        Point3::new(0.0, -1.0, -1.0),
+        SimpleMaterial {
+            light_side,
+            color_fn: |point| 0.5 * Color::new(1.0, 1.0, 1.0) * if (point.x.abs() + 0.25).fract() < 0.5 { 1.0 } else { 0.0 },
+            reflectivity: 0.3,
+        },
+    );
     let light = Sun {
-        direction: Vector3::new(1.0, 0.6, 1.0),
+        direction: light_side,
         color1: Color::new(0.0, 0.0, 0.0),
         color2: Color::new(1.0, 1.0, 0.7),
         threshold1: 0.96,
@@ -94,9 +121,9 @@ fn create_pixel_field(width: u32, height: u32, initial_color: Color) -> Vec<Pixe
 fn save_field(field: &Vec<Pixel>, width: u32, height: u32, file_name: &str) {
     let mut as_integers = Vec::with_capacity(3 as usize * width as usize * height as usize);
     for pixel in field {
-        as_integers.push((pixel.color.x * 255.0) as u8);
-        as_integers.push((pixel.color.y * 255.0) as u8);
-        as_integers.push((pixel.color.z * 255.0) as u8);
+        as_integers.push((pixel.color.x.min(1.0) * 255.0) as u8);
+        as_integers.push((pixel.color.y.min(1.0) * 255.0) as u8);
+        as_integers.push((pixel.color.z.min(1.0) * 255.0) as u8);
     }
 
     ImageBuffer::<Rgb<_>, _>::from_vec(width, height, as_integers)

@@ -1,9 +1,9 @@
+use material::Material;
 use object::Object;
 use prelude::*;
-use ray;
 use ray::Ray;
 
-pub struct Primitive {
+pub struct Primitive<M> {
     normal: Vector3,
     normal_offset: f64,
     normal_a: Vector3,
@@ -12,12 +12,11 @@ pub struct Primitive {
     normal_b_offset: f64,
     normal_c: Vector3,
     normal_c_offset: f64,
-    color: Vector3,
-    reflectivity: f64,
+    material: M,
 }
 
-impl Primitive {
-    pub fn new(point_a: Point3, point_b: Point3, point_c: Point3, color: Color, reflectivity: f64) -> Primitive {
+impl<M> Primitive<M> {
+    pub fn new(point_a: Point3, point_b: Point3, point_c: Point3, material: M) -> Primitive<M> {
         let ab = point_b - point_a;
         let bc = point_c - point_b;
         let ca = point_a - point_c;
@@ -34,13 +33,12 @@ impl Primitive {
             normal_b_offset: normal_b.dot(&point_c.coords),
             normal_c,
             normal_c_offset: normal_c.dot(&point_a.coords),
-            color,
-            reflectivity,
+            material
         }
     }
 }
 
-impl Object for Primitive {
+impl<M: Material> Object for Primitive<M> {
     fn get_alpha(&self, ray: &Ray) -> Option<f64> {
         let alpha = (self.normal_offset - self.normal.dot(&ray.start.coords)) / self.normal.dot(&ray.direction);
 
@@ -56,18 +54,7 @@ impl Object for Primitive {
     }
 
     fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
-        if num_recursions == 0 {
-            return self.color;
-        }
-
         let reflection_point = ray.start + alpha * ray.direction;
-
-        let reflected_ray = Ray {
-            start: reflection_point,
-            direction: ray::reflect(&ray.direction, &self.normal),
-        };
-
-        let reflected_color = reflected_ray.trace(scene, num_recursions - 1);
-        self.color + self.reflectivity * reflected_color
+        self.material.get_color(&ray.direction, reflection_point,  &self.normal, scene, num_recursions)
     }
 }

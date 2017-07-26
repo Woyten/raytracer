@@ -1,16 +1,15 @@
+use material::Material;
 use object::Object;
 use prelude::*;
-use ray;
 use ray::Ray;
 
-pub struct Sphere {
+pub struct Sphere<M> {
     pub middle: Point3,
     pub radius: f64,
-    pub color: Color,
-    pub reflectivity: f64,
+    pub material: M,
 }
 
-impl Object for Sphere {
+impl<M: Material> Object for Sphere<M> {
     fn get_alpha(&self, ray: &Ray) -> Option<f64> {
         let ms = ray.start - self.middle;
         let d_sqr = ray.direction.norm_squared();
@@ -28,19 +27,8 @@ impl Object for Sphere {
     }
 
     fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
-        if num_recursions == 0 {
-            return self.color;
-        }
-
         let reflection_point = ray.start + alpha * ray.direction;
         let normal = reflection_point - self.middle;
-
-        let reflected_ray = Ray {
-            start: reflection_point,
-            direction: ray::reflect(&ray.direction, &normal),
-        };
-
-        let reflected_color = reflected_ray.trace(scene, num_recursions - 1);
-        self.color + self.reflectivity * reflected_color
+        self.material.get_color(&ray.direction, reflection_point, &normal, scene, num_recursions )
     }
 }
