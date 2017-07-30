@@ -18,9 +18,9 @@ impl Material for Transmissive {
 
         let normalized_normal = normal.normalize();
         let normal_projection = normalized_normal.dot(&direction);
+        let refraction = if normal_projection > 0.0 { self.refraction.recip() } else { self.refraction };
         let tangential_space = direction - normal_projection * normalized_normal;
-        let discriminant = self.refraction * self.refraction * normal_projection * normal_projection +
-            (self.refraction * self.refraction - 1.0) * tangential_space.norm_squared();
+        let discriminant = refraction * refraction * normal_projection * normal_projection + (refraction * refraction - 1.0) * tangential_space.norm_squared();
 
         let reflected_ray = Ray {
             start: reflection_point,
@@ -34,7 +34,7 @@ impl Material for Transmissive {
         } else {
             let refracted_ray = Ray {
                 start: reflection_point,
-                direction: tangential_space - discriminant.sqrt() * normalized_normal,
+                direction: tangential_space + normal_projection.signum() * discriminant.sqrt() * normalized_normal,
             };
             let transmitted_color = self.color.component_mul(
                 &refracted_ray.trace(scene, num_recursions - 1),

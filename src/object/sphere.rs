@@ -21,14 +21,30 @@ impl<M: Material> Object for Sphere<M> {
         if discriminant < 0.0 {
             return None;
         }
+        let sqrt = discriminant.sqrt();
 
-        let alpha = -p_half - discriminant.sqrt();
-        if alpha > 0.0 { Some(alpha) } else { None }
+        let hit_from_outside = -p_half - sqrt;
+        if hit_from_outside > 1e-9 {
+            return Some(hit_from_outside);
+        }
+
+        let hit_from_inside = -p_half + sqrt;
+        if hit_from_inside > 1e-9 {
+            return Some(hit_from_inside);
+        }
+
+        None
     }
 
     fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
         let normal = reflection_point - self.middle;
-        self.material.get_color(ray.direction, reflection_point, &normal, scene, num_recursions )
+        self.material.get_color(
+            ray.direction,
+            reflection_point,
+            &normal,
+            scene,
+            num_recursions,
+        )
     }
 }
