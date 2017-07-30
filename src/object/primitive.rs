@@ -33,16 +33,19 @@ impl<M> Primitive<M> {
             normal_b_offset: normal_b.dot(&point_c.coords),
             normal_c,
             normal_c_offset: normal_c.dot(&point_a.coords),
-            material
+            material,
         }
     }
 }
 
 impl<M: Material> Object for Primitive<M> {
     fn get_alpha(&self, ray: &Ray) -> Option<f64> {
-        let alpha = (self.normal_offset - self.normal.dot(&ray.start.coords)) / self.normal.dot(&ray.direction);
-
-        if alpha < 1e-9 {
+        let orthogonality = self.normal.dot(&ray.direction);
+        if orthogonality == 0.0 {
+            return None;
+        }
+        let alpha = (self.normal_offset - self.normal.dot(&ray.start.coords)) / orthogonality;
+        if alpha <= 0.0 {
             return None;
         }
 
@@ -55,6 +58,12 @@ impl<M: Material> Object for Primitive<M> {
 
     fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
-        self.material.get_color(&ray.direction, reflection_point,  &self.normal, scene, num_recursions)
+        self.material.get_color(
+            ray.direction,
+            reflection_point,
+            &self.normal,
+            scene,
+            num_recursions,
+        )
     }
 }

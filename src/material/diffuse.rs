@@ -1,20 +1,17 @@
+use material::Material;
 use object::Object;
 use prelude::*;
 use ray;
 use ray::Ray;
 
-pub trait Material {
-    fn get_color(&self, direction: &Vector3, reflection_point: Point3, normal: &Vector3, scene: &[&Object], num_recursions: usize) -> Color;
-}
-
-pub struct SimpleMaterial<F: Fn(&Point3) -> Color> {
+pub struct Diffuse<F: Fn(&Point3) -> Color> {
     pub light_side: Vector3,
     pub color_fn: F,
     pub reflectivity: f64,
 }
 
-impl<F: Fn(&Point3) -> Color> Material for SimpleMaterial<F> {
-    fn get_color(&self, direction: &Vector3, reflection_point: Point3, normal: &Vector3, scene: &[&Object], num_recursions: usize) -> Color {
+impl<F: Fn(&Point3) -> Color> Material for Diffuse<F> {
+    fn get_color(&self, direction: Vector3, reflection_point: Point3, normal: &Vector3, scene: &[&Object], num_recursions: usize) -> Color {
         let dot_product = normal.normalize().dot(&self.light_side.normalize());
         let diffuse_color = (dot_product + 1.0) * 0.5 * (self.color_fn)(&reflection_point);
 

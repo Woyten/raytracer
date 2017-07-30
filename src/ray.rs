@@ -20,7 +20,7 @@ impl Ray {
         let mut nearest_object = None;
         for object in scene {
             if let Some(alpha) = object.get_alpha(self) {
-                if alpha < nearest {
+                if alpha < nearest && alpha > 1e-9 {
                     nearest = alpha;
                     nearest_object = Some(object);
                 }

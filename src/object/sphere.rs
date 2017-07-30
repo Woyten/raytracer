@@ -18,7 +18,7 @@ impl<M: Material> Object for Sphere<M> {
 
         let discriminant = p_half * p_half - q;
 
-        if discriminant <= 0.0 {
+        if discriminant < 0.0 {
             return None;
         }
 
@@ -29,6 +29,6 @@ impl<M: Material> Object for Sphere<M> {
     fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
         let normal = reflection_point - self.middle;
-        self.material.get_color(&ray.direction, reflection_point, &normal, scene, num_recursions )
+        self.material.get_color(ray.direction, reflection_point, &normal, scene, num_recursions )
     }
 }

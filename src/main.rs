@@ -3,7 +3,8 @@ extern crate nalgebra;
 
 use image::ImageBuffer;
 use image::Rgb;
-use material::SimpleMaterial;
+use material::diffuse::Diffuse;
+use material::transmissive::Transmissive;
 use object::Object;
 use object::plane::Plane;
 use object::primitive::Primitive;
@@ -30,7 +31,7 @@ fn main() {
     let sphere1 = Sphere {
         middle: Point3::new(-0.5, -0.5, -1.0),
         radius: 0.5,
-        material: SimpleMaterial {
+        material: Diffuse {
             light_side,
             color_fn: |_| Color::new(0.1, 0.5, 0.1),
             reflectivity: 0.4,
@@ -39,16 +40,16 @@ fn main() {
     let sphere2 = Sphere {
         middle: Point3::new(0.5, -0.5, -1.0),
         radius: 0.5,
-        material: SimpleMaterial {
-            light_side: Vector3::new(1.0, 0.6, 1.0),
-            color_fn: |_| Color::new(0.6, 0.2, 0.2),
+        material: Transmissive {
+            color: Color::new(0.6, 0.2, 0.2),
+            refraction: 1.1,
             reflectivity: 0.4,
         },
     };
     let sphere3 = Sphere {
         middle: Point3::new(-0.5, 0.5, -1.0),
         radius: 0.5,
-        material: SimpleMaterial {
+        material: Diffuse {
             light_side,
             color_fn: |_| Color::new(0.2, 0.2, 0.9),
             reflectivity: 0.4,
@@ -58,7 +59,7 @@ fn main() {
         Point3::new(-1.0, 1.0, -0.5),
         Point3::new(1.0, 1.0, -0.5),
         Point3::new(0.0, 1.0, -1.0),
-        SimpleMaterial {
+        Diffuse {
             light_side,
             color_fn: |_| Color::new(0.2, 0.2, 0.2),
             reflectivity: 0.2,
@@ -68,7 +69,7 @@ fn main() {
         Point3::new(-1.0, -1.0, -0.5),
         Point3::new(1.0, -1.0, -0.5),
         Point3::new(0.0, -1.0, -1.0),
-        SimpleMaterial {
+        Diffuse {
             light_side,
             color_fn: |point| 0.5 * Color::new(1.0, 1.0, 1.0) * if (point.x.abs() + 0.25).fract() < 0.5 { 1.0 } else { 0.0 },
             reflectivity: 0.3,
