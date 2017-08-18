@@ -9,7 +9,7 @@ pub struct Sphere<M> {
     pub material: M,
 }
 
-impl<M: Material> Object for Sphere<M> {
+impl<M: Material + Sync> Object for Sphere<M> {
     fn get_alpha(&self, ray: &Ray) -> Option<f64> {
         let ms = ray.start - self.middle;
         let d_sqr = ray.direction.norm_squared();
@@ -39,12 +39,7 @@ impl<M: Material> Object for Sphere<M> {
     fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
         let normal = reflection_point - self.middle;
-        self.material.get_color(
-            ray.direction,
-            reflection_point,
-            &normal,
-            scene,
-            num_recursions,
-        )
+        self.material
+            .get_color(ray.direction, reflection_point, &normal, scene, num_recursions)
     }
 }

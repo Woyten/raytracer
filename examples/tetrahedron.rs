@@ -7,10 +7,21 @@ use object::plane::Plane;
 use object::primitive::Primitive;
 use object::sphere::Sphere;
 use object::sun::Sun;
+use output::piston;
 use prelude::*;
 use raytracer::*;
+use trace::PixelField;
 
 fn main() {
+    let mut angle = 0.0;
+    let initial = PixelField::create(800, 800, Color::new(0.0, 0.0, 0.0));
+    piston::render_in_window(initial, 1.0, move |field| {
+        angle += 0.1;
+        render_scene(field, angle);
+    });
+}
+
+fn render_scene(field: &mut PixelField, angle: f64) {
     let light_side = Vector3::new(1.0, 0.6, 1.0);
 
     let green_sphere = Sphere {
@@ -44,10 +55,10 @@ fn main() {
         },
     );
 
-    let left_tip = Point3::new(-0.3, -0.25, 0.5);
-    let right_tip = Point3::new(0.3, -0.25, 0.5);
-    let front_tip = Point3::new(0.0, -0.25, 0.6);
-    let top_tip = Point3::new(0.1, 0.15, 0.5);
+    let left_tip = Point3::new(-0.3 + 0.1 * angle.sin(), -0.25, 0.5);
+    let right_tip = Point3::new(0.3 + 0.1 * angle.sin(), -0.25, 0.5);
+    let front_tip = Point3::new(0.0 + 0.1 * angle.sin(), -0.25, 0.6);
+    let top_tip = Point3::new(0.1 + 0.1 * angle.sin(), 0.15, 0.5);
 
     let left_face = Primitive::new(
         left_tip,
@@ -109,5 +120,5 @@ fn main() {
         &light as &Object,
     ];
 
-    render::render_scene_to_file(&scene, "tetrahedron.png", 800, 800);
+    field.render_scene(&scene);
 }

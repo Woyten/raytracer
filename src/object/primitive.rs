@@ -38,7 +38,7 @@ impl<M> Primitive<M> {
     }
 }
 
-impl<M: Material> Object for Primitive<M> {
+impl<M: Material + Sync> Object for Primitive<M> {
     fn get_alpha(&self, ray: &Ray) -> Option<f64> {
         let orthogonality = self.normal.dot(&ray.direction);
         if orthogonality == 0.0 {

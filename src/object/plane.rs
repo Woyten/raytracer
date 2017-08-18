@@ -22,7 +22,7 @@ impl<M> Plane<M> {
     }
 }
 
-impl<M: Material> Object for Plane<M> {
+impl<M: Material + Sync> Object for Plane<M> {
     fn get_alpha(&self, ray: &Ray) -> Option<f64> {
         let orthogonality = self.normal.dot(&ray.direction);
         if orthogonality == 0.0 {

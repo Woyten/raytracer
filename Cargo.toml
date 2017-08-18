@@ -6,3 +6,5 @@ authors = ["Woyten <woyten.tielesch@online.de>"]
 [dependencies]
 image = "*"
 nalgebra = "*"
+piston_window = "*"
+rayon = "*"
