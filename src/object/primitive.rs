@@ -39,13 +39,13 @@ impl<M> Primitive<M> {
 }
 
 impl<M: Material + Sync> Object for Primitive<M> {
-    fn get_alpha(&self, ray: &Ray) -> Option<f64> {
+    fn get_alpha(&self, ray: &Ray, max_alpha: f64) -> Option<f64> {
         let orthogonality = self.normal.dot(&ray.direction);
         if orthogonality == 0.0 {
             return None;
         }
         let alpha = (self.normal_offset - self.normal.dot(&ray.start.coords)) / orthogonality;
-        if alpha <= 0.0 {
+        if alpha <= 0.0 || alpha >= max_alpha {
             return None;
         }
 
@@ -53,17 +53,16 @@ impl<M: Material + Sync> Object for Primitive<M> {
         let is_inside = self.normal_a.dot(&hit_point) < 1e-9 + self.normal_a_offset && self.normal_b.dot(&hit_point) <= 1e-9 + self.normal_b_offset &&
             self.normal_c.dot(&hit_point) < 1e-9 + self.normal_c_offset;
 
-        if is_inside { Some(alpha) } else { None }
+        if is_inside {
+            Some(alpha)
+        } else {
+            None
+        }
     }
 
     fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
-        self.material.get_color(
-            ray.direction,
-            reflection_point,
-            &self.normal,
-            scene,
-            num_recursions,
-        )
+        self.material
+            .get_color(ray.direction, reflection_point, &self.normal, scene, num_recursions)
     }
 }

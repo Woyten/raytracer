@@ -12,7 +12,7 @@ pub struct Sun {
 }
 
 impl Object for Sun {
-    fn get_alpha(&self, _: &Ray) -> Option<f64> {
+    fn get_alpha(&self, _: &Ray, _: f64) -> Option<f64> {
         Some(f64::MAX)
     }
 

@@ -19,14 +19,18 @@ impl Ray {
         let mut nearest = f64::INFINITY;
         let mut nearest_object = None;
         for object in scene {
-            if let Some(alpha) = object.get_alpha(self) {
+            if let Some(alpha) = object.get_alpha(self, nearest) {
                 if alpha < nearest && alpha > 1e-9 {
                     nearest = alpha;
                     nearest_object = Some(object);
                 }
             }
         }
-        if let Some(object) = nearest_object { Some((nearest, *object)) } else { None }
+        if let Some(object) = nearest_object {
+            Some((nearest, *object))
+        } else {
+            None
+        }
     }
 }
 

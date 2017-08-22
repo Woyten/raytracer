@@ -23,23 +23,22 @@ impl<M> Plane<M> {
 }
 
 impl<M: Material + Sync> Object for Plane<M> {
-    fn get_alpha(&self, ray: &Ray) -> Option<f64> {
+    fn get_alpha(&self, ray: &Ray, _: f64) -> Option<f64> {
         let orthogonality = self.normal.dot(&ray.direction);
         if orthogonality == 0.0 {
             return None;
         }
         let alpha = (self.normal_offset - self.normal.dot(&ray.start.coords)) / orthogonality;
-        if alpha > 0.0 { Some(alpha) } else { None }
+        if alpha > 0.0 {
+            Some(alpha)
+        } else {
+            None
+        }
     }
 
     fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
-        self.material.get_color(
-            ray.direction,
-            reflection_point,
-            &self.normal,
-            scene,
-            num_recursions,
-        )
+        self.material
+            .get_color(ray.direction, reflection_point, &self.normal, scene, num_recursions)
     }
 }
