@@ -50,7 +50,7 @@ impl PixelField {
     }
 
     pub fn create_image_buffer(&self) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-        let mut as_integers = Vec::with_capacity(3 as usize * self.width as usize * self.height as usize);
+        let mut as_integers = Vec::with_capacity(4 as usize * self.width as usize * self.height as usize);
         for pixel in &self.pixels {
             as_integers.push((pixel.color.x.min(1.0) * 255.0) as u8);
             as_integers.push((pixel.color.y.min(1.0) * 255.0) as u8);
@@ -61,7 +61,3 @@ impl PixelField {
         ImageBuffer::from_vec(self.width, self.height, as_integers).unwrap()
     }
 }
-
-pub mod file_output {}
-
-pub mod piston_output {}
