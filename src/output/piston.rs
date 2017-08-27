@@ -8,12 +8,14 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 use std::time::Instant;
-use trace::PixelField;
+use trace::ViewFrustum;
 
-pub fn render_in_window<F>(mut field: PixelField, scale: f64, mut update: F)
+pub fn render_in_window<F>(mut field: ViewFrustum, scale: f64, mut update: F)
 where
-    F: FnMut(&mut PixelField) + Send + 'static,
+    F: FnMut(&mut ViewFrustum) + Send + 'static,
 {
+    let initial_image = field.create_image_buffer();
+
     let mut window: PistonWindow = WindowSettings::new(
         "Raytracer",
         [
@@ -24,10 +26,12 @@ where
         .build()
         .unwrap();
 
-    let image_buffer = Arc::new(Mutex::new(field.create_image_buffer()));
+    let mut texture = Texture::from_image(&mut window.factory, &initial_image, &TextureSettings::new()).unwrap();
+
+    let shared_image = Arc::new(Mutex::new(initial_image));
 
     thread::spawn({
-        let image_buffer = image_buffer.clone();
+        let shared_image = shared_image.clone();
         move || {
             let start = Instant::now();
             let mut frames = 0;
@@ -40,16 +44,15 @@ where
                 println!("FPS: {:.1}", frames as f64 / duration_in_secs);
 
                 let new_buffer = field.create_image_buffer();
-                *image_buffer.lock().unwrap() = new_buffer;
+                *shared_image.lock().unwrap() = new_buffer;
             }
         }
     });
 
-    let mut texture = Texture::from_image(&mut window.factory, &image_buffer.lock().unwrap(), &TextureSettings::new()).unwrap();
     while let Some(event) = window.next() {
         window.draw_2d(&event, |context, graphics| {
             texture
-                .update(&mut graphics.encoder, &image_buffer.lock().unwrap())
+                .update(&mut graphics.encoder, &shared_image.lock().unwrap())
                 .unwrap();
             piston_window::image(&texture, context.transform.zoom(scale), graphics);
         });

@@ -10,18 +10,18 @@ use object::sun::Sun;
 use output::piston;
 use prelude::*;
 use raytracer::*;
-use trace::PixelField;
+use trace::ViewFrustum;
 
 fn main() {
     let mut angle = 0.0;
-    let initial = PixelField::create(800, 800, Color::new(0.0, 0.0, 0.0));
+    let initial = ViewFrustum::create(800, 800, Color::new(0.0, 0.0, 0.0));
     piston::render_in_window(initial, 1.0, move |field| {
         angle += 0.1;
         render_scene(field, angle);
     });
 }
 
-fn render_scene(field: &mut PixelField, angle: f64) {
+fn render_scene(field: &mut ViewFrustum, angle: f64) {
     let light_side = Vector3::new(1.0, 0.6, 1.0);
 
     let green_sphere = Sphere {

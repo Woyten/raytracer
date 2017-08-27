@@ -6,30 +6,40 @@ use ray::Ray;
 use rayon::prelude::*;
 
 pub struct Pixel {
-    location: Point2,
+    ray: Ray,
     color: Color,
 }
 
-pub struct PixelField {
+pub struct ViewFrustum {
     pub width: u32,
     pub height: u32,
     pub pixels: Vec<Pixel>,
 }
 
-impl PixelField {
-    pub fn create(width: u32, height: u32, initial_color: Color) -> PixelField {
+impl ViewFrustum {
+    pub fn create(width: u32, height: u32, initial_color: Color) -> ViewFrustum {
+        let start = Point3::new(0.0, 0.0, 1.0);
+
         let mut pixels = Vec::with_capacity(width as usize * height as usize);
         for y in 0..height {
             let y = 2.0 * (y as f64 + 0.5) / height as f64 - 1.0;
             for x in 0..width {
                 let x = 2.0 * (x as f64 + 0.5) / width as f64 - 1.0;
+
+                let location = Point2::new(x, -y);
+
+                let ray = Ray {
+                    start,
+                    direction: Vector3::new(location.x, location.y, -1.0),
+                };
+
                 pixels.push(Pixel {
-                    location: Point2::new(x, -y),
+                    ray,
                     color: initial_color,
                 });
             }
         }
-        PixelField {
+        ViewFrustum {
             width,
             height,
             pixels,
@@ -37,16 +47,9 @@ impl PixelField {
     }
 
     pub fn render_scene(&mut self, scene: &[&Object]) {
-        let start = Point3::new(0.0, 0.0, 1.0);
-
-        self.pixels.par_iter_mut().for_each(|pixel| {
-            let ray = Ray {
-                start,
-                direction: Vector3::new(pixel.location.x, pixel.location.y, -1.0),
-            };
-
-            pixel.color = ray.trace(&scene, 10);
-        });
+        self.pixels
+            .par_iter_mut()
+            .for_each(|pixel| { pixel.color = pixel.ray.trace(&scene, 10); });
     }
 
     pub fn create_image_buffer(&self) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
