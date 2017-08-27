@@ -46,10 +46,14 @@ impl ViewFrustum {
         }
     }
 
-    pub fn render_scene(&mut self, scene: &[&Object]) {
-        self.pixels
-            .par_iter_mut()
-            .for_each(|pixel| { pixel.color = pixel.ray.trace(&scene, 10); });
+    pub fn render_scene(&mut self, transform: &Matrix3, scene: &[&Object]) {
+        self.pixels.par_iter_mut().for_each(|pixel| {
+            let transformed_ray = Ray {
+                start: transform * pixel.ray.start,
+                direction: transform * pixel.ray.direction,
+            };
+            pixel.color = transformed_ray.trace(&scene, 10);
+        });
     }
 
     pub fn create_image_buffer(&self) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
