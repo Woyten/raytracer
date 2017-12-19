@@ -55,10 +55,10 @@ fn render_scene(field: &mut ViewFrustum, angle: f64) {
         },
     );
 
-    let left_tip = Point3::new(-0.25, -0.25, -0.25);
-    let right_tip = Point3::new(0.25, -0.25, -0.25);
-    let front_tip = Point3::new(0.0, -0.5, -0.0);
-    let top_tip = Point3::new(0.0, -0.25, 0.25);
+    let left_tip = Point3::new(-0.25, 0.0, -0.25);
+    let right_tip = Point3::new(0.25, -0.5, -0.25);
+    let front_tip = Point3::new(-0.25, -0.5, -0.25);
+    let top_tip = Point3::new(-0.25, -0.5, 0.25);
 
     let left_face = Primitive::new(
         left_tip,
