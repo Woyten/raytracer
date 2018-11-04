@@ -1,5 +1,5 @@
-use prelude::*;
-use ray::Ray;
+use crate::prelude::*;
+use crate::ray::Ray;
 
 pub mod plane;
 pub mod primitive;

@@ -1,7 +1,7 @@
-use material::Material;
-use object::Object;
-use prelude::*;
-use ray::Ray;
+use crate::material::Material;
+use crate::object::Object;
+use crate::prelude::*;
+use crate::ray::Ray;
 
 pub struct Sphere<M> {
     pub middle: Point3,

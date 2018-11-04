@@ -1,8 +1,8 @@
-use material::Material;
-use object::Object;
-use prelude::*;
-use ray;
-use ray::Ray;
+use crate::material::Material;
+use crate::object::Object;
+use crate::prelude::*;
+use crate::ray;
+use crate::ray::Ray;
 
 pub struct Transmissive {
     pub color: Color,

@@ -1,5 +1,5 @@
-use object::Object;
-use prelude::*;
+use crate::object::Object;
+use crate::prelude::*;
 
 pub mod diffuse;
 pub mod transmissive;

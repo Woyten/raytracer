@@ -1,3 +1,4 @@
+use crate::trace::ViewFrustum;
 use piston_window;
 use piston_window::PistonWindow;
 use piston_window::Texture;
@@ -8,7 +9,6 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 use std::time::Instant;
-use trace::ViewFrustum;
 
 pub fn render_in_window<F>(mut field: ViewFrustum, scale: f64, mut update: F)
 where
@@ -16,13 +16,8 @@ where
 {
     let initial_image = field.create_image_buffer();
 
-    let mut window: PistonWindow = WindowSettings::new(
-        "Raytracer",
-        [
-            (field.width as f64 * scale) as u32,
-            (field.height as f64 * scale) as u32,
-        ],
-    ).exit_on_esc(true)
+    let mut window: PistonWindow = WindowSettings::new("Raytracer", [(f64::from(field.width) * scale) as u32, (f64::from(field.height) * scale) as u32])
+        .exit_on_esc(true)
         .build()
         .unwrap();
 
@@ -40,8 +35,8 @@ where
 
                 frames += 1;
                 let duration = start.elapsed();
-                let duration_in_secs = duration.as_secs() as f64 + duration.subsec_nanos() as f64 * 1e-9;
-                println!("FPS: {:.1}", frames as f64 / duration_in_secs);
+                let duration_in_secs = duration.as_secs() as f64 + f64::from(duration.subsec_nanos()) * 1e-9;
+                println!("FPS: {:.1}", f64::from(frames) / duration_in_secs);
 
                 let new_buffer = field.create_image_buffer();
                 *shared_image.lock().unwrap() = new_buffer;
@@ -51,9 +46,7 @@ where
 
     while let Some(event) = window.next() {
         window.draw_2d(&event, |context, graphics| {
-            texture
-                .update(&mut graphics.encoder, &shared_image.lock().unwrap())
-                .unwrap();
+            texture.update(&mut graphics.encoder, &shared_image.lock().unwrap()).unwrap();
             piston_window::image(&texture, context.transform.zoom(scale), graphics);
         });
     }

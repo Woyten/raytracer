@@ -1,8 +1,8 @@
+use crate::object::Object;
+use crate::prelude::*;
+use crate::ray::Ray;
 use image::ImageBuffer;
 use image::Rgba;
-use object::Object;
-use prelude::*;
-use ray::Ray;
 use rayon::prelude::*;
 
 pub struct Pixel {
@@ -22,9 +22,9 @@ impl ViewFrustum {
 
         let mut pixels = Vec::with_capacity(width as usize * height as usize);
         for y in 0..height {
-            let y = 2.0 * (y as f64 + 0.5) / height as f64 - 1.0;
+            let y = 2.0 * (f64::from(y) + 0.5) / f64::from(height) - 1.0;
             for x in 0..width {
-                let x = 2.0 * (x as f64 + 0.5) / width as f64 - 1.0;
+                let x = 2.0 * (f64::from(x) + 0.5) / f64::from(width) - 1.0;
 
                 let location = Point2::new(x, -y);
 
@@ -33,17 +33,10 @@ impl ViewFrustum {
                     direction: Vector3::new(location.x, location.y, -1.0),
                 };
 
-                pixels.push(Pixel {
-                    ray,
-                    color: initial_color,
-                });
+                pixels.push(Pixel { ray, color: initial_color });
             }
         }
-        ViewFrustum {
-            width,
-            height,
-            pixels,
-        }
+        ViewFrustum { width, height, pixels }
     }
 
     pub fn render_scene(&mut self, transform: &Matrix3, scene: &[&Object]) {

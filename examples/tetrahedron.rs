@@ -1,19 +1,16 @@
-extern crate nalgebra;
-extern crate raytracer;
-
-use material::diffuse::Diffuse;
-use material::transmissive::Transmissive;
+use crate::material::diffuse::Diffuse;
+use crate::material::transmissive::Transmissive;
+use crate::object::plane::Plane;
+use crate::object::primitive::Primitive;
+use crate::object::sphere::Sphere;
+use crate::object::sun::Sun;
+use crate::object::Object;
+use crate::output::piston;
+use crate::prelude::*;
+use crate::trace::ViewFrustum;
 use nalgebra::geometry::Rotation3;
-use object::Object;
-use object::plane::Plane;
-use object::primitive::Primitive;
-use object::sphere::Sphere;
-use object::sun::Sun;
-use output::piston;
-use prelude::*;
 use raytracer::*;
 use std::f64;
-use trace::ViewFrustum;
 
 fn main() {
     let mut angle = 0.0;

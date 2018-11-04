@@ -1,6 +1,6 @@
-use object::Object;
-use prelude::*;
-use ray::Ray;
+use crate::object::Object;
+use crate::prelude::*;
+use crate::ray::Ray;
 use std::f64;
 
 pub struct Sun {
