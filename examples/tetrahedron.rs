@@ -50,7 +50,14 @@ fn render_scene(field: &mut ViewFrustum, angle: f64) {
         Point3::new(0.0, 1.0, -1.0),
         Diffuse {
             light_side,
-            color_fn: |point| 0.5 * Color::new(1.0, 1.0, 1.0) * if (point.x.abs() + 0.25).fract() < 0.5 { 1.0 } else { 0.0 },
+            color_fn: |point| {
+                0.5 * Color::new(1.0, 1.0, 1.0)
+                    * if (point.x.abs() + 0.25).fract() < 0.5 {
+                        1.0
+                    } else {
+                        0.0
+                    }
+            },
             reflectivity: 0.3,
         },
     );
@@ -109,15 +116,15 @@ fn render_scene(field: &mut ViewFrustum, angle: f64) {
         threshold2: 0.99,
     };
 
-    let scene = [
-        &green_sphere as &Object,
-        &red_sphere as &Object,
-        &floor as &Object,
-        &left_face as &Object,
-        &right_face as &Object,
-        &back_face as &Object,
-        &bottom_face as &Object,
-        &light as &Object,
+    let scene: [&dyn Object; 8] = [
+        &green_sphere,
+        &red_sphere,
+        &floor,
+        &left_face,
+        &right_face,
+        &back_face,
+        &bottom_face,
+        &light,
     ];
 
     let transform = Rotation3::from_euler_angles(80.0 * f64::consts::PI / 180.0, 0.0, angle);

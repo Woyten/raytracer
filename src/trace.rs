@@ -33,13 +33,20 @@ impl ViewFrustum {
                     direction: Vector3::new(location.x, location.y, -1.0),
                 };
 
-                pixels.push(Pixel { ray, color: initial_color });
+                pixels.push(Pixel {
+                    ray,
+                    color: initial_color,
+                });
             }
         }
-        ViewFrustum { width, height, pixels }
+        ViewFrustum {
+            width,
+            height,
+            pixels,
+        }
     }
 
-    pub fn render_scene(&mut self, transform: &Matrix3, scene: &[&Object]) {
+    pub fn render_scene(&mut self, transform: &Matrix3, scene: &[&dyn Object]) {
         self.pixels.par_iter_mut().for_each(|pixel| {
             let transformed_ray = Ray {
                 start: transform * pixel.ray.start,
@@ -50,7 +57,8 @@ impl ViewFrustum {
     }
 
     pub fn create_image_buffer(&self) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-        let mut as_integers = Vec::with_capacity(4 as usize * self.width as usize * self.height as usize);
+        let mut as_integers =
+            Vec::with_capacity(4 as usize * self.width as usize * self.height as usize);
         for pixel in &self.pixels {
             as_integers.push((pixel.color.x.min(1.0) * 255.0) as u8);
             as_integers.push((pixel.color.y.min(1.0) * 255.0) as u8);

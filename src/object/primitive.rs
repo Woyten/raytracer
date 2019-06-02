@@ -50,8 +50,9 @@ impl<M: Material + Sync> Object for Primitive<M> {
         }
 
         let hit_point = (ray.start + alpha * ray.direction).coords;
-        let is_inside = self.normal_a.dot(&hit_point) < 1e-9 + self.normal_a_offset && self.normal_b.dot(&hit_point) <= 1e-9 + self.normal_b_offset &&
-            self.normal_c.dot(&hit_point) < 1e-9 + self.normal_c_offset;
+        let is_inside = self.normal_a.dot(&hit_point) < 1e-9 + self.normal_a_offset
+            && self.normal_b.dot(&hit_point) <= 1e-9 + self.normal_b_offset
+            && self.normal_c.dot(&hit_point) < 1e-9 + self.normal_c_offset;
 
         if is_inside {
             Some(alpha)
@@ -60,9 +61,20 @@ impl<M: Material + Sync> Object for Primitive<M> {
         }
     }
 
-    fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
+    fn get_color(
+        &self,
+        ray: &Ray,
+        alpha: f64,
+        scene: &[&dyn Object],
+        num_recursions: usize,
+    ) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
-        self.material
-            .get_color(ray.direction, reflection_point, &self.normal, scene, num_recursions)
+        self.material.get_color(
+            ray.direction,
+            reflection_point,
+            &self.normal,
+            scene,
+            num_recursions,
+        )
     }
 }

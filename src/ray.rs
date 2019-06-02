@@ -8,14 +8,14 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn trace(&self, scene: &[&Object], num_recursions: usize) -> Color {
+    pub fn trace(&self, scene: &[&dyn Object], num_recursions: usize) -> Color {
         match self.find_nearest(scene) {
             Some((alpha, object)) => object.get_color(self, alpha, scene, num_recursions),
             None => Color::new(0.0, 0.0, 0.0),
         }
     }
 
-    fn find_nearest<'a>(&self, scene: &'a [&Object]) -> Option<(f64, &'a Object)> {
+    fn find_nearest<'a>(&self, scene: &'a [&dyn Object]) -> Option<(f64, &'a dyn Object)> {
         let mut nearest = f64::INFINITY;
         let mut nearest_object = None;
         for object in scene {

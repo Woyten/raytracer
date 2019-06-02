@@ -16,14 +16,16 @@ impl Object for Sun {
         Some(f64::MAX)
     }
 
-    fn get_color(&self, ray: &Ray, _: f64, _: &[&Object], _: usize) -> Color {
+    fn get_color(&self, ray: &Ray, _: f64, _: &[&dyn Object], _: usize) -> Color {
         let dot_product = ray.direction.normalize().dot(&self.direction.normalize());
         if dot_product < self.threshold1 {
             self.color1
         } else if dot_product > self.threshold2 {
             self.color2
         } else {
-            ((self.threshold2 - dot_product) * self.color1 + (dot_product - self.threshold1) * self.color2) / (self.threshold2 - self.threshold1)
+            ((self.threshold2 - dot_product) * self.color1
+                + (dot_product - self.threshold1) * self.color2)
+                / (self.threshold2 - self.threshold1)
         }
     }
 }

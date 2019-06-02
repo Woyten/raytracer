@@ -5,7 +5,7 @@ authors = ["Woyten <woyten.tielesch@online.de>"]
 edition = "2018"
 
 [dependencies]
-image = "*"
-nalgebra = "*"
-piston_window = "*"
-rayon = "*"
+image = "0.21.1"
+nalgebra = "0.18.0"
+piston_window = "0.93.0"
+rayon = "1.0.3"

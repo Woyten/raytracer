@@ -36,10 +36,21 @@ impl<M: Material + Sync> Object for Sphere<M> {
         None
     }
 
-    fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
+    fn get_color(
+        &self,
+        ray: &Ray,
+        alpha: f64,
+        scene: &[&dyn Object],
+        num_recursions: usize,
+    ) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
         let normal = reflection_point - self.middle;
-        self.material
-            .get_color(ray.direction, reflection_point, &normal, scene, num_recursions)
+        self.material.get_color(
+            ray.direction,
+            reflection_point,
+            &normal,
+            scene,
+            num_recursions,
+        )
     }
 }

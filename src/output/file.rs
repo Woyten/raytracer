@@ -1,5 +1,5 @@
-use std::path::Path;
 use crate::trace::ViewFrustum;
+use std::path::Path;
 
 pub fn save_to_file(field: &ViewFrustum, file_name: &str) {
     field

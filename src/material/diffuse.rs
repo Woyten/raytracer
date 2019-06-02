@@ -11,7 +11,14 @@ pub struct Diffuse<F: Fn(&Point3) -> Color> {
 }
 
 impl<F: Fn(&Point3) -> Color> Material for Diffuse<F> {
-    fn get_color(&self, direction: Vector3, reflection_point: Point3, normal: &Vector3, scene: &[&Object], num_recursions: usize) -> Color {
+    fn get_color(
+        &self,
+        direction: Vector3,
+        reflection_point: Point3,
+        normal: &Vector3,
+        scene: &[&dyn Object],
+        num_recursions: usize,
+    ) -> Color {
         let dot_product = normal.normalize().dot(&self.light_side.normalize());
         let diffuse_color = (dot_product + 1.0) * 0.5 * (self.color_fn)(&reflection_point);
 

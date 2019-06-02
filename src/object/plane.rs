@@ -10,7 +10,12 @@ pub struct Plane<M> {
 }
 
 impl<M> Plane<M> {
-    pub fn from_triangle(point_a: Point3, point_b: Point3, point_c: Point3, material: M) -> Plane<M> {
+    pub fn from_triangle(
+        point_a: Point3,
+        point_b: Point3,
+        point_c: Point3,
+        material: M,
+    ) -> Plane<M> {
         let ab = point_b - point_a;
         let bc = point_c - point_b;
         let normal = ab.cross(&bc);
@@ -36,9 +41,20 @@ impl<M: Material + Sync> Object for Plane<M> {
         }
     }
 
-    fn get_color(&self, ray: &Ray, alpha: f64, scene: &[&Object], num_recursions: usize) -> Color {
+    fn get_color(
+        &self,
+        ray: &Ray,
+        alpha: f64,
+        scene: &[&dyn Object],
+        num_recursions: usize,
+    ) -> Color {
         let reflection_point = ray.start + alpha * ray.direction;
-        self.material
-            .get_color(ray.direction, reflection_point, &self.normal, scene, num_recursions)
+        self.material.get_color(
+            ray.direction,
+            reflection_point,
+            &self.normal,
+            scene,
+            num_recursions,
+        )
     }
 }
