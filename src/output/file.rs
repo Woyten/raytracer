@@ -1,7 +1,7 @@
-use crate::trace::ViewFrustum;
+use crate::trace::Camera;
 use std::path::Path;
 
-pub fn save_to_file(field: &ViewFrustum, file_name: &str) {
+pub fn save_to_file(field: &Camera, file_name: &str) {
     field
         .create_image_buffer()
         .save(Path::new(file_name))

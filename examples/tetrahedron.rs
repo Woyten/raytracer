@@ -7,21 +7,21 @@ use crate::object::sun::Sun;
 use crate::object::Object;
 use crate::output::piston;
 use crate::prelude::*;
-use crate::trace::ViewFrustum;
+use crate::trace::Camera;
 use nalgebra::geometry::Rotation3;
 use raytracer::*;
 use std::f64;
 
 fn main() {
     let mut angle = 0.0;
-    let initial = ViewFrustum::create(800, 800, Color::new(0.0, 0.0, 0.0));
+    let initial = Camera::create(800, 800, Color::new(0.0, 0.0, 0.0));
     piston::render_in_window(initial, 1.0, move |field| {
         angle += 0.01;
         render_scene(field, angle);
     });
 }
 
-fn render_scene(field: &mut ViewFrustum, angle: f64) {
+fn render_scene(field: &mut Camera, angle: f64) {
     let light_side = Vector3::new(1.0, -0.6, 1.0);
 
     let green_sphere = Sphere {

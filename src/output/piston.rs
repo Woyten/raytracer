@@ -1,4 +1,4 @@
-use crate::trace::ViewFrustum;
+use crate::trace::Camera;
 use piston_window;
 use piston_window::PistonWindow;
 use piston_window::Texture;
@@ -10,9 +10,9 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Instant;
 
-pub fn render_in_window<F>(mut field: ViewFrustum, scale: f64, mut update: F)
+pub fn render_in_window<F>(mut field: Camera, scale: f64, mut update: F)
 where
-    F: FnMut(&mut ViewFrustum) + Send + 'static,
+    F: FnMut(&mut Camera) + Send + 'static,
 {
     let initial_image = field.create_image_buffer();
 
@@ -25,14 +25,6 @@ where
     )
     .exit_on_esc(true)
     .build()
-    .unwrap();
-
-    let mut texture_context = window.create_texture_context();
-    let mut texture = Texture::from_image(
-        &mut texture_context,
-        &initial_image,
-        &TextureSettings::new(),
-    )
     .unwrap();
 
     let shared_image = Arc::new(Mutex::new(initial_image));
@@ -57,11 +49,17 @@ where
         }
     });
 
+    let mut texture_context = window.create_texture_context();
     while let Some(event) = window.next() {
         window.draw_2d(&event, |context, graphics, _device| {
-            texture
-                .update(&mut texture_context, &shared_image.lock().unwrap())
-                .unwrap();
+            // TODO: Update texture
+            let texture = Texture::from_image(
+                &mut texture_context,
+                &shared_image.lock().unwrap(),
+                &TextureSettings::new(),
+            )
+            .unwrap();
+
             piston_window::image(&texture, context.transform.zoom(scale), graphics);
         });
     }

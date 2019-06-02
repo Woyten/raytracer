@@ -10,14 +10,14 @@ pub struct Pixel {
     color: Color,
 }
 
-pub struct ViewFrustum {
+pub struct Camera {
     pub width: u32,
     pub height: u32,
     pub pixels: Vec<Pixel>,
 }
 
-impl ViewFrustum {
-    pub fn create(width: u32, height: u32, initial_color: Color) -> ViewFrustum {
+impl Camera {
+    pub fn create(width: u32, height: u32, initial_color: Color) -> Camera {
         let start = Point3::new(0.0, 0.0, 1.0);
 
         let mut pixels = Vec::with_capacity(width as usize * height as usize);
@@ -39,7 +39,7 @@ impl ViewFrustum {
                 });
             }
         }
-        ViewFrustum {
+        Camera {
             width,
             height,
             pixels,
