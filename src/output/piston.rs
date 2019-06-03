@@ -5,6 +5,7 @@ use piston_window::Texture;
 use piston_window::TextureSettings;
 use piston_window::Transformed;
 use piston_window::WindowSettings;
+use std::ops::DerefMut;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
@@ -14,7 +15,7 @@ pub fn render_in_window<F>(mut field: Camera, scale: f64, mut update: F)
 where
     F: FnMut(&mut Camera) + Send + 'static,
 {
-    let initial_image = field.create_image_buffer();
+    let initial_image = field.create_image_buffer(None);
 
     let mut window: PistonWindow = WindowSettings::new(
         "Raytracer",
@@ -31,6 +32,7 @@ where
 
     thread::spawn({
         let shared_image = shared_image.clone();
+        let mut buffer = Vec::new();
         move || {
             let start = Instant::now();
             let mut frames = 0;
@@ -43,8 +45,10 @@ where
                     duration.as_secs() as f64 + f64::from(duration.subsec_nanos()) * 1e-9;
                 println!("FPS: {:.1}", f64::from(frames) / duration_in_secs);
 
-                let new_buffer = field.create_image_buffer();
-                *shared_image.lock().unwrap() = new_buffer;
+                let new_buffer = field.create_image_buffer(buffer);
+                let old_buffer =
+                    std::mem::replace(shared_image.lock().unwrap().deref_mut(), new_buffer);
+                buffer = old_buffer.into_raw();
             }
         }
     });

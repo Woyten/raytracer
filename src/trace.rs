@@ -56,16 +56,21 @@ impl Camera {
         });
     }
 
-    pub fn create_image_buffer(&self) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-        let mut as_integers =
-            Vec::with_capacity(4 as usize * self.width as usize * self.height as usize);
+    pub fn create_image_buffer<B: Into<Option<Vec<u8>>>>(
+        &self,
+        buffer_to_reuse: B,
+    ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+        let mut buffer = buffer_to_reuse.into().unwrap_or_else(|| {
+            Vec::with_capacity(4 as usize * self.width as usize * self.height as usize)
+        });
+        buffer.clear();
         for pixel in &self.pixels {
-            as_integers.push((pixel.color.x.min(1.0) * 255.0) as u8);
-            as_integers.push((pixel.color.y.min(1.0) * 255.0) as u8);
-            as_integers.push((pixel.color.z.min(1.0) * 255.0) as u8);
-            as_integers.push(255);
+            buffer.push((pixel.color.x.min(1.0) * 255.0) as u8);
+            buffer.push((pixel.color.y.min(1.0) * 255.0) as u8);
+            buffer.push((pixel.color.z.min(1.0) * 255.0) as u8);
+            buffer.push(255);
         }
 
-        ImageBuffer::from_vec(self.width, self.height, as_integers).unwrap()
+        ImageBuffer::from_vec(self.width, self.height, buffer).unwrap()
     }
 }
