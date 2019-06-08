@@ -1,4 +1,5 @@
 use crate::trace::Camera;
+use log::info;
 use piston_window;
 use piston_window::PistonWindow;
 use piston_window::Texture;
@@ -43,7 +44,7 @@ where
                 let duration = start.elapsed();
                 let duration_in_secs =
                     duration.as_secs() as f64 + f64::from(duration.subsec_nanos()) * 1e-9;
-                println!("FPS: {:.1}", f64::from(frames) / duration_in_secs);
+                info!("FPS: {:.1}", f64::from(frames) / duration_in_secs);
 
                 let new_buffer = field.create_image_buffer(buffer);
                 let old_buffer =

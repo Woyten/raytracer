@@ -3,6 +3,7 @@ use crate::prelude::*;
 use crate::ray::Ray;
 use image::ImageBuffer;
 use image::Rgba;
+use log::debug;
 use rayon::prelude::*;
 
 pub struct Pixel {
@@ -60,16 +61,24 @@ impl Camera {
         &self,
         buffer_to_reuse: B,
     ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-        let mut buffer = buffer_to_reuse.into().unwrap_or_else(|| {
-            Vec::with_capacity(4 as usize * self.width as usize * self.height as usize)
-        });
-        buffer.clear();
-        for pixel in &self.pixels {
-            buffer.push((pixel.color.x.min(1.0) * 255.0) as u8);
-            buffer.push((pixel.color.y.min(1.0) * 255.0) as u8);
-            buffer.push((pixel.color.z.min(1.0) * 255.0) as u8);
-            buffer.push(255);
-        }
+        let time = std::time::Instant::now();
+
+        let mut buffer = buffer_to_reuse.into().unwrap_or_else(Vec::new);
+        buffer.resize(4 * self.width as usize * self.height as usize, 0);
+
+        buffer
+            .par_chunks_mut(4)
+            .zip_eq(self.pixels.par_iter())
+            .for_each(|(chunk, pixel)| {
+                chunk.copy_from_slice(&[
+                    (pixel.color.x.min(1.0) * 255.0) as u8,
+                    (pixel.color.y.min(1.0) * 255.0) as u8,
+                    (pixel.color.z.min(1.0) * 255.0) as u8,
+                    255,
+                ]);
+            });
+
+        debug!("Elaspsed: {:?}", time.elapsed());
 
         ImageBuffer::from_vec(self.width, self.height, buffer).unwrap()
     }

@@ -13,6 +13,8 @@ use raytracer::*;
 use std::f64;
 
 fn main() {
+    simple_logger::init().unwrap();
+
     let mut angle = 0.0;
     let initial = Camera::create(800, 800, Color::new(0.0, 0.0, 0.0));
     piston::render_in_window(initial, 1.0, move |field| {
